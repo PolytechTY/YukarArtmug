@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('change', calculateTotal);
 });
 
-// 선택한 옵션 견적 요약 복사
+// 선택한 옵션 견적 요약 복사 (iframe 호환 버전)
 function copyOrderSummary() {
   const form = document.getElementById('calculatorForm');
   const selectedRadio = form.querySelector('input[name="mainSet"]:checked');
@@ -49,9 +49,25 @@ function copyOrderSummary() {
   }
   text += `------------------------\n총 예상 금액: ${totalPrice}`;
 
-  navigator.clipboard.writeText(text).then(() => {
-    alert('선택하신 견적 요약이 클립보드에 복사되었습니다!');
-  });
+  // 임시 textarea를 생성하여 클립보드 복사 (iframe 환경 우회)
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+      alert('선택하신 견적 요약이 클립보드에 복사되었습니다!');
+    } else {
+      alert('복사에 실패했습니다. 직접 드래그해서 복사해주세요.');
+    }
+  } catch (err) {
+    console.error('클립보드 복사 오류:', err);
+    alert('이 브라우저 환경에서는 자동 복사가 지원되지 않습니다.');
+  }
+
+  document.body.removeChild(textarea);
 }
 
 // 포트폴리오 필터링 기능
