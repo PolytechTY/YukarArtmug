@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
   form.addEventListener('change', calculateTotal);
 });
 
-// 선택한 옵션 견적 요약 복사 (iframe 호환 버전)
+// 선택한 옵션 견적 요약 복사 (iframe 완벽 호환 UI 방식)
 function copyOrderSummary() {
   const form = document.getElementById('calculatorForm');
   const selectedRadio = form.querySelector('input[name="mainSet"]:checked');
@@ -49,25 +49,31 @@ function copyOrderSummary() {
   }
   text += `------------------------\n총 예상 금액: ${totalPrice}`;
 
-  // 임시 textarea를 생성하여 클립보드 복사 (iframe 환경 우회)
-  const textarea = document.createElement('textarea');
-  textarea.value = text;
-  document.body.appendChild(textarea);
-  textarea.select();
-
-  try {
-    const successful = document.execCommand('copy');
-    if (successful) {
-      alert('선택하신 견적 요약이 클립보드에 복사되었습니다!');
-    } else {
-      alert('복사에 실패했습니다. 직접 드래그해서 복사해주세요.');
-    }
-  } catch (err) {
-    console.error('클립보드 복사 오류:', err);
-    alert('이 브라우저 환경에서는 자동 복사가 지원되지 않습니다.');
+  // 1. 기존에 만들어둔 임시 박스가 있다면 제거
+  let existingBox = document.getElementById('copyMessageBox');
+  if (existingBox) {
+    existingBox.remove();
   }
 
-  document.body.removeChild(textarea);
+  // 2. 사용자에게 직접 보여줄 텍스트 영역 생성 (iframe 제한 우회)
+  const container = document.createElement('div');
+  container.id = 'copyMessageBox';
+  container.style.cssText = 'margin-top: 10px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 5px;';
+  
+  container.innerHTML = `
+    <p style="margin: 0 0 5px 0; font-size: 12px; color: #555;">아래 박스 안의 텍스트를 복사(Ctrl+C)해 주세요!</p>
+    <textarea id="copyTargetArea" style="width: 100%; height: 80px; padding: 8px; font-size: 12px; resize: none;" readonly>${text}</textarea>
+  `;
+
+  // 계산기 폼 바로 아래에 추가
+  form.appendChild(container);
+
+  // 3. 텍스트 자동 선택
+  const targetArea = document.getElementById('copyTargetArea');
+  targetArea.select();
+  targetArea.setSelectionRange(0, targetArea.value.length); // 모바일/PC 호환
+
+  alert('견적 내용이 생성되었습니다. 아래 나타난 박스에서 복사해 주세요!');
 }
 
 // 포트폴리오 필터링 기능
