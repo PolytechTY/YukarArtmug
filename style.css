@@ -9,6 +9,15 @@
   --border-color: #2ed573;
   --card-border: #2f3542;
 }
+@media screen and (max-width: 768px) {
+  .main-content {
+    padding: 10px;
+  }
+  .card {
+    margin-bottom: 16px;
+    padding: 16px;
+  }
+}
 
 * {
   box-sizing: border-box;
